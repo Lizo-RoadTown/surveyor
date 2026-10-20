@@ -31,9 +31,16 @@ elsewhere; never modify it.
    - **Scan for committed secrets** on this first full read.
    - **Label every module:** what it does, its stage and usual order in a working run,
      and where it sits relative to the others.
+   - **Inventory the instruction layer too:** ontology, canon/framework documents, agent
+     definitions and contracts, prompts and prompt builders, vocabularies/standards,
+     training data, lessons and session summaries. Judge it by what it *teaches*, not by
+     whether it runs.
+   - **Proprietary check:** mark material that is the operator's proprietary work and never
+     copy it into a public repo without the operator's say.
 3. **Interface mapping.** For each module, the interface it depends on — exactly what
    it touches (DB tables / RPCs / MCP calls / imports / APIs). A module's real
-   interface is *what it touches*, nothing more. **Verify against the running system:**
+   interface is *what it touches*, nothing more, **including what it teaches or
+   instructs** (which agents read it, where it is injected). **Verify against the running system:**
    check the schema folder against what the code calls and, if available, a
    live-schema export; they can diverge.
 4. **Bond-strength seams.** Cluster tight-internal / loose-across. Where coupling is
@@ -63,8 +70,9 @@ whether each core tenet was right or wrong (report either way); whether the orig
 decomposition was correct and this is only more granular; whether a recategorization
 decision was made and what interface it created; why the original pass missed it; and
 the method change that turns the case into a category of action scanned for in the
-initial pass. Then apply that change here. First example:
-`docs/decomposition/evaluations/2026-10-20-two-modules-without-a-repo.md`.
+initial pass. Then apply that change here. Examples:
+`docs/decomposition/evaluations/2026-10-20-two-modules-without-a-repo.md`,
+`docs/decomposition/evaluations/2026-10-20-agent-teaching-material.md`.
 
 ## Launching the repos (project launch)
 
