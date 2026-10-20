@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "role": "whole",
+  "module": "surveyor",
+  "sources": [
+    {"name": "PROVES_LIBRARY", "repo": "Lizo-RoadTown/PROVES_LIBRARY",
+     "match": ["**/PROVES_LIBRARY/**"]},
+    {"name": "proves-curation-dashboard", "repo": "Lizo-RoadTown/proves-curation-dashboard",
+     "match": ["**/proves-curation-dashboard/**"]}
+  ],
+  "surfaces": [
+    {"name": "source", "paths": ["@sources"], "on": "read-or-write", "entry": "process"},
+    {"name": "identity", "paths": ["CHARTER.md", "CLAUDE.md", "docs/BUILD.md"], "on": "write", "entry": "decision"},
+    {"name": "definition", "paths": ["decomposition.json"], "on": "write", "entry": "decision"},
+    {"name": "method", "paths": ["skills/**"], "on": "write", "entry": "skill"},
+    {"name": "evaluations", "paths": ["docs/decomposition/evaluations/**"], "on": "write", "entry": "decision"},
+    {"name": "cases", "paths": ["docs/decomposition/proves/**"], "on": "write", "entry": "process"},
+    {"name": "tooling", "paths": ["plugins/**"], "on": "write", "entry": "process"}
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "extraKnownMarketplaces": {
+    "lizo-skills": {
+      "source": { "source": "github", "repo": "Lizo-RoadTown/claude-skills-marketplace" }
+    }
+  },
+  "enabledPlugins": {
+    "tapestry-discipline@tapestry": true,
+    "tapestry-patterns@tapestry": true,
+    "lens-log@lizo-skills": true
+  }
+}
