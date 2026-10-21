@@ -163,33 +163,41 @@ systems) for the modules that repo owns.
 
 ## 7. Observation layers (operator, 2026-10-21)
 
-More than one layer is observed. Sorted by what is observed and for whom (evaluation:
-[`../evaluations/2026-10-21-observation-layers.md`](../evaluations/2026-10-21-observation-layers.md)):
+More than one layer is observed. **The Lens, with all its modules, is the project observer:
+the larger, shared observatory for one project.** Tapestry and Loom memory plan to build the
+smaller **personal observatories** from elements of the Lens. Evaluation:
+[`../evaluations/2026-10-21-observation-layers.md`](../evaluations/2026-10-21-observation-layers.md).
 
 | Layer | Observes | For whom | Home |
 |---|---|---|---|
-| Workflow oversight | the health of the extraction pipeline and the dashboard; agent trust | the maintainer | NEW (proposed) repo; a pluggable slot, models swappable |
-| Project observer | knowledge exchanges between contributors (and agents) at the project's interfaces | the project; builds its knowledge map | lens-observe |
-| Personal observer | one contributor's work across all their projects; private | the contributor | outside the Lens (personalization / adaptive engine); not in PROVES |
+| Project observatory | knowledge exchanges between contributors and agents at the project's shared interfaces, and the knowledge they produce | the project; builds its knowledge map | **the Lens as a whole** (all modules below) |
+| · extraction | feeds candidates to the curation dashboard | — | lens-ingest |
+| · review + library | human verification of what was extracted | contributors | lens-review, lens-serve |
+| · exchange signals | how knowledge moves between contributors (reviewer patterns, calibration, activity) | the project | lens-observe |
+| · workflow oversight | health of the extraction pipeline and the dashboard; agent trust | the maintainer | NEW (proposed) repo; pluggable slot, models swappable |
+| Personal observatory | one contributor's work across all their projects; private | the contributor | built by Tapestry / Loom memory from Lens elements; not in PROVES |
 
-Extraction (the agents that feed the curation dashboard) stays in lens-ingest. Boundary rule:
-a project observer sees only what happens at the project's shared interfaces.
+Boundary rule: the project observatory sees only what happens at the project's shared
+interfaces. A personal observatory keeps everything else private.
+
+Reuse rule: because personal observatories will be assembled from Lens modules, each Lens
+module must stay neutral about scale (one person or one project), take its connection
+injected, and keep its interface to what it touches on the bus.
 
 ```mermaid
 flowchart TB
-  subgraph PERSONAL["Personal layer (outside the Lens): one per contributor, private, spans projects"]
-    PA["A's personal observer"]
-    PB["B's personal observer"]
+  subgraph PERSONAL["Personal observatories (Tapestry / Loom memory): one per contributor, private, span projects"]
+    PA["A's personal observatory"]
+    PB["B's personal observatory"]
   end
-  subgraph PROJECT["Project layer: one per project, run by its maintainer"]
-    PO["Project observer<br/>(knowledge exchanges)"]
+  subgraph LENS["The Lens = the project observatory (one per project, run by its maintainer)"]
+    EX["Extraction<br/>(lens-ingest)"]
+    DB["Curation dashboard<br/>review · library · graph"]
+    OB["Exchange signals<br/>(lens-observe)"]
+    WH["Workflow oversight<br/>(pluggable; models swappable)"]
     KM["Project knowledge map"]
   end
-  subgraph LAB["The Lens for this project (curation dashboard + its pipeline)"]
-    EX["Extraction orchestration<br/>(agents feed the dashboard)"]
-    DB["Curation dashboard<br/>review · library · graph"]
-    WH["Workflow oversight team<br/>(pluggable; models swappable)"]
-  end
+  LIB[("Lens modules<br/>(reusable elements)")]
   PA -->|supports| A["A's work on this project"]
   PB -->|supports| B["B's work on this project"]
   A <-->|knowledge exchange| B
@@ -198,8 +206,8 @@ flowchart TB
   EX -->|candidates| DB
   WH -.->|watches health of| EX
   WH -.->|watches health of| DB
-  WH -->|health · trust · proposals| DB
-  PO -.->|observes| A
-  PO -.->|observes exchanges in| DB
-  PO -->|exchange telemetry| KM
+  OB -.->|observes exchanges in| DB
+  OB -->|exchange telemetry| KM
+  LIB -.->|elements reused to build| PERSONAL
+  LENS -.->|built from| LIB
 ```

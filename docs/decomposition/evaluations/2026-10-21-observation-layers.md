@@ -112,3 +112,24 @@ The A4 table rows move as follows (applied in `module-map.md`):
 
 The operator's open items now include a name for the workflow oversight repo (it replaces
 "agent oversight + trust" in the list of names to choose).
+
+## 8. Correction from the operator (later the same day)
+
+§4 and §7 placed the project observer in lens-observe alone. The operator corrected this:
+**the Lens, with all its modules, is the project observer**, the larger observatory for one
+project. lens-observe is one part of it (the exchange signals), alongside extraction, review,
+the read side and workflow oversight. Tapestry and Loom memory plan to build the smaller
+**personal observatories** from elements of the Lens.
+
+What changes:
+- `module-map.md` section 7 now shows the Lens as the project observatory, with its modules
+  as parts, and a reuse link from the Lens modules to personal observatories.
+- The tenet verdicts in §2 stand. One more lesson: the evaluation itself mapped a layer onto a
+  single repo when the operator meant the whole. When the operator names a layer, check
+  whether it means one module or the whole before assigning it.
+- Reuse at personal scale is a new reason for an existing rule: Lens modules must stay neutral
+  about scale (one project or one person), take their connection injected, and keep their
+  interface to what they touch on the bus.
+
+The architecture is written up for every repo in lens-core
+`docs/architecture/observatories.md` (approved 2026-10-21).
