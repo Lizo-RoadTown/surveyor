@@ -9,7 +9,7 @@ from pathlib import Path
 ENTRIES_DIR = ("docs", "log", "entries")
 MISSED_DIR = ("docs", "log", "missed")
 
-_LESSONS = re.compile(r"^## Lessons[ \t]*\n(.*?)(?=^## |\Z)", re.S | re.M)
+_LESSONS = re.compile(r"^## Lessons\b[^\n]*\n(.*?)(?=^## |\Z)", re.S | re.M)
 _COMMENT = re.compile(r"<!--.*?-->", re.S)
 
 
@@ -54,7 +54,9 @@ def coverage(root: Path, names: set[str]) -> tuple[set[str], list[str]]:
             rejected.append(name)
             continue
         surfaces = front_matter(text).get("surfaces", [])
-        covered.update([surfaces] if isinstance(surfaces, str) else surfaces)
+        if isinstance(surfaces, str):
+            surfaces = [s.strip() for s in surfaces.split(",") if s.strip()]
+        covered.update(surfaces)
     return covered, rejected
 
 

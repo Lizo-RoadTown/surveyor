@@ -69,6 +69,8 @@ def pending(session_id: str) -> dict[str, list[str]]:
             item = json.loads(line)
         except json.JSONDecodeError:
             continue
+        if not isinstance(item, dict) or "surface" not in item or "evidence" not in item:
+            continue
         bucket = out.setdefault(item["surface"], [])
         if item["evidence"] not in bucket and len(bucket) < MAX_EVIDENCE:
             bucket.append(item["evidence"])

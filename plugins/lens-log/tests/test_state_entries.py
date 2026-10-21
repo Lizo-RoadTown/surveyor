@@ -95,3 +95,26 @@ def test_write_missed(repo):
     assert path.parent == repo.joinpath(*entries.MISSED_DIR)
     data = json.loads(path.read_text(encoding="utf-8"))
     assert data == {"session_id": "s1", "at": "2026-09-29T10:05:07", "surfaces": {"source": ["p"]}}
+
+
+def test_state_skips_valid_json_lines_missing_fields(state_dir):
+    # M7: one well-formed but incomplete line must not disable enforcement.
+    state.record("s1", {"source": ["a"]}, [])
+    with open(state_dir / "s1.touches.jsonl", "a", encoding="utf-8") as f:
+        f.write('{"evidence": "x"}\n["not", "a", "dict"]\n{"surface": "bus"}\n')
+    assert state.pending("s1") == {"source": ["a"]}
+
+
+def test_has_lessons_accepts_longer_heading():
+    # M6: "## Lessons learned" is a Lessons section too.
+    assert entries.has_lessons(GOOD.replace("## Lessons", "## Lessons learned"))
+    assert not entries.has_lessons(GOOD.replace("## Lessons", "## Lessonsx"))
+
+
+def test_coverage_reads_unbracketed_surfaces(repo):
+    # M8: "surfaces: source, bus" without brackets covers both surfaces.
+    d = repo.joinpath(*entries.ENTRIES_DIR)
+    d.mkdir(parents=True)
+    (d / "c.md").write_text(GOOD.replace("[source, bus]", "source, bus"), encoding="utf-8")
+    covered, rejected = entries.coverage(repo, {"c.md"})
+    assert covered == {"source", "bus"} and rejected == []
