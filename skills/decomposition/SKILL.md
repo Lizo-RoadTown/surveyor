@@ -22,6 +22,9 @@ elsewhere; never modify it.
 
 1. **Orient to the whole.** State what the system is and the end goal, so no agent
    mistakes its slice for the whole. Write it down first.
+   - **Layers the source lacks:** list the layers the operator's architecture defines (for
+     example personal versus project) and mark which ones the source contains. Record a
+     missing layer; don't invent it from the source.
 2. **Read-only inventory.** Per repo/area, enumerate candidate modules.
    - **Source freshness first:** record the commit of every source read and compare it
      to the remote; a stale source invalidates the pass.
@@ -49,6 +52,11 @@ elsewhere; never modify it.
    - **Cross-cutting scan:** look explicitly for concerns that touch every stage
      (access/tenancy, governance/oversight, configuration, observability, secrets) and
      classify each as a module, part of the standard, or a constraint on the bus.
+   - **Observation layers:** for every signal, metric, log, health check or trust score,
+     record what it observes (the machinery's health, the knowledge exchanges between people
+     and agents, or one individual), who reads it, and how far its data may travel. Separate
+     the layers even when they read the same tables; give each layer's data scope a bus
+     contract.
    - **Modules that govern the bus** (row security, scoping columns) add a *contract* to
      the standard, not just tables.
 5. **Name (operator-led).** Placeholder neutral labels until the operator names them.
@@ -72,7 +80,8 @@ decision was made and what interface it created; why the original pass missed it
 the method change that turns the case into a category of action scanned for in the
 initial pass. Then apply that change here. Examples:
 `docs/decomposition/evaluations/2026-10-20-two-modules-without-a-repo.md`,
-`docs/decomposition/evaluations/2026-10-20-agent-teaching-material.md`.
+`docs/decomposition/evaluations/2026-10-20-agent-teaching-material.md`,
+`docs/decomposition/evaluations/2026-10-21-observation-layers.md`.
 
 ## Launching the repos (project launch)
 

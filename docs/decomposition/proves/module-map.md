@@ -58,7 +58,8 @@ flowchart LR
 ```
 
 Cross-cutting (not a stage; used throughout): access + tenancy (orgs, members, roles,
-sign-in), agent oversight + trust, signals + metrics, database connection + config.
+sign-in), workflow oversight (agent trust, pipeline health, errors), the project observer
+(knowledge exchanges), database connection + config. See section 7 for the observation layers.
 
 ## 2. Where each piece goes (Lens repos)
 
@@ -68,15 +69,16 @@ flowchart TB
   ING["lens-ingest<br/>stages 1–4"]
   REV["lens-review<br/>stages 5–6"]
   SRV["lens-serve<br/>stage 7"]
-  OBS["lens-observe<br/>signals + metrics"]
+  OBS["lens-observe<br/>project observer: knowledge exchanges"]
   NEW1["NEW (proposed): access + tenancy<br/>orgs · members · roles · sign-in · row-level security"]
-  NEW2["NEW (proposed): agent oversight + trust<br/>capabilities · proposals · trust history"]
+  NEW2["NEW (proposed): workflow oversight<br/>agent trust · proposals · pipeline health · errors"]
   ING -- "writes candidates + sources" --> CORE
   REV -- "reads candidates · writes decisions + library" --> CORE
   SRV -- "reads library" --> CORE
-  OBS -- "reads activity" --> CORE
+  OBS -- "reads decisions + activity, writes exchange telemetry" --> CORE
   NEW1 -- "scopes every table by org" --> CORE
-  NEW2 -- "governs what agents may do" --> ING
+  NEW2 -- "watches + governs agents" --> ING
+  NEW2 -- "feeds health + proposals" --> REV
 ```
 
 ## 3. The shared database, by area
@@ -121,12 +123,14 @@ them (E → ingest, F → oversight, G → access, I → serve).
 | Ask / chat + evidence | questions over the library, answer sources, attachments | 7 | 🚧 (unmounted) | dashboard U5, U6 | lens-serve |
 | MCP read server | agent access to the library | 7 · last | ⚠️ (DB tools likely broken) | `mcp-server/` | lens-serve |
 | Peer-reflection metrics | calibration, rejection trends, reviewer patterns | cross-cutting | 🚧 (unmounted) | dashboard U2 + `v_*` views | lens-observe |
-| Pipeline + activity instruments | pipeline stats, org activity heat map | cross-cutting | 🚧 (partly mock) | dashboard U3, R9 panels | lens-observe |
-| Error + suggestion logging, diagnostics | records failures and improvement ideas | cross-cutting | ⚠️ (unused / one script broken) | `curator/error_logger.py`, `scripts/` | lens-observe |
+| Pipeline stats | is the pipeline moving | cross-cutting | 🚧 (partly mock) | dashboard U3, R9 panels | **NEW (proposed): workflow oversight** |
+| Org activity heat map | who is active where in the project | cross-cutting | 🚧 (partly mock) | dashboard U3, R9 panels | lens-observe |
+| Error + suggestion logging, diagnostics | records failures and improvement ideas | cross-cutting | ⚠️ (unused / one script broken) | `curator/error_logger.py`, `scripts/` | **NEW (proposed): workflow oversight** |
+| Intake health + queue stats | is intake up and draining | cross-cutting | ✅ | `extraction-api/app.py` `/health`, `/queue/stats`, `/jobs/{id}` | **NEW (proposed): workflow oversight** |
 | Domain objects + repositories | shared typed access to the library | cross-cutting | 🚧 (tested, unused) | `production/core/` | lens-core |
 | DB connection + extraction schema | pooled connection, schema check | cross-cutting | ✅ | `Version 3/database.py`, `schema_validator.py` | lens-core |
 | Access + tenancy | orgs, members, roles, active org, sign-in, row security | cross-cutting | ✅ (but weak isolation) | dashboard R1 + auth; DB area G | **NEW (proposed)** |
-| Agent oversight + trust | agent capabilities, proposals, trust scores | cross-cutting | ✅ | dashboard R6; DB area F + triggers | **NEW (proposed)** |
+| Agent oversight + trust | agent capabilities, proposals, trust scores | cross-cutting | ✅ | dashboard R6; DB area F + triggers | **NEW (proposed): workflow oversight** |
 | Admin health/policy panels | — | — | mock only (not a module) | dashboard R7 | dropped |
 
 **Excluded as superseded or dead:** Version 2, `process_extractions_v3.py`, the second
@@ -156,3 +160,46 @@ agent and a docs-site skeleton modeled on Tapestry's `apps/docs-site` (see
 to copy, so it is built: agent definition + `/docs-update` command + a nudge when code
 changes without docs, writing Starlight pages (start / how-to / explanation / reference /
 systems) for the modules that repo owns.
+
+## 7. Observation layers (operator, 2026-10-21)
+
+More than one layer is observed. Sorted by what is observed and for whom (evaluation:
+[`../evaluations/2026-10-21-observation-layers.md`](../evaluations/2026-10-21-observation-layers.md)):
+
+| Layer | Observes | For whom | Home |
+|---|---|---|---|
+| Workflow oversight | the health of the extraction pipeline and the dashboard; agent trust | the maintainer | NEW (proposed) repo; a pluggable slot, models swappable |
+| Project observer | knowledge exchanges between contributors (and agents) at the project's interfaces | the project; builds its knowledge map | lens-observe |
+| Personal observer | one contributor's work across all their projects; private | the contributor | outside the Lens (personalization / adaptive engine); not in PROVES |
+
+Extraction (the agents that feed the curation dashboard) stays in lens-ingest. Boundary rule:
+a project observer sees only what happens at the project's shared interfaces.
+
+```mermaid
+flowchart TB
+  subgraph PERSONAL["Personal layer (outside the Lens): one per contributor, private, spans projects"]
+    PA["A's personal observer"]
+    PB["B's personal observer"]
+  end
+  subgraph PROJECT["Project layer: one per project, run by its maintainer"]
+    PO["Project observer<br/>(knowledge exchanges)"]
+    KM["Project knowledge map"]
+  end
+  subgraph LAB["The Lens for this project (curation dashboard + its pipeline)"]
+    EX["Extraction orchestration<br/>(agents feed the dashboard)"]
+    DB["Curation dashboard<br/>review · library · graph"]
+    WH["Workflow oversight team<br/>(pluggable; models swappable)"]
+  end
+  PA -->|supports| A["A's work on this project"]
+  PB -->|supports| B["B's work on this project"]
+  A <-->|knowledge exchange| B
+  A --> DB
+  B --> DB
+  EX -->|candidates| DB
+  WH -.->|watches health of| EX
+  WH -.->|watches health of| DB
+  WH -->|health · trust · proposals| DB
+  PO -.->|observes| A
+  PO -.->|observes exchanges in| DB
+  PO -->|exchange telemetry| KM
+```
