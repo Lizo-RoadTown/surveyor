@@ -60,6 +60,20 @@ def coverage(root: Path, names: set[str]) -> tuple[set[str], list[str]]:
     return covered, rejected
 
 
+def last_evaluated_map(root: Path) -> set[str] | None:
+    """The module map recorded by the latest entry that names an evaluation, or None."""
+    for name in reversed(list_entries(root)):
+        try:
+            text = Path(root).joinpath(*ENTRIES_DIR, name).read_text(encoding="utf-8")
+        except OSError:
+            continue
+        fm = front_matter(text)
+        modules = fm.get("modules")
+        if fm.get("evaluation") and isinstance(modules, list):
+            return set(modules)
+    return None
+
+
 def write_missed(root: Path, missing: dict[str, list[str]], session_id: str, now: datetime) -> Path:
     d = Path(root).joinpath(*MISSED_DIR)
     d.mkdir(parents=True, exist_ok=True)

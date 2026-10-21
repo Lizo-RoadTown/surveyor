@@ -57,6 +57,9 @@ class Definition:
     module: str
     surfaces: tuple[Surface, ...]
     sources: tuple[str, ...]
+    # The whole's module map: "modules" plus "proposed" (repos not yet created). Empty
+    # for a piece. A change to it needs an evaluation entry (DESIGN.md D11).
+    module_map: frozenset[str] = frozenset()
 
     def surface(self, name: str) -> Surface:
         for s in self.surfaces:
@@ -101,7 +104,13 @@ def load(root: Path) -> Definition:
         surfaces.append(Surface(name, tuple(patterns), on, entry))
     if not surfaces:
         raise DefinitionError("no surfaces declared")
-    return Definition(Path(root).resolve(), module, tuple(surfaces), sources)
+    module_map: set[str] = set()
+    for key in ("modules", "proposed"):
+        names = data.get(key, [])
+        if not isinstance(names, list) or not all(isinstance(n, str) and n for n in names):
+            raise DefinitionError(f"'{key}' must be a list of names")
+        module_map.update(names)
+    return Definition(Path(root).resolve(), module, tuple(surfaces), sources, frozenset(module_map))
 
 
 def norm(path: str) -> str:

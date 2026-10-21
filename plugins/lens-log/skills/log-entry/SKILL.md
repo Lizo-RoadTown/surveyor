@@ -30,3 +30,15 @@ like `docs/BUILD.md`; it goes in the log.
 
 To record a lesson with no surface touched:
 `python <plugin>/scripts/new_entry.py --type lesson --slug <slug> --title "<lesson>"`
+
+**Module map changes.** If the hook says the *module map* changed (a repo was added,
+split, removed or recategorized in the whole's `decomposition.json`), first write the
+Surveyor evaluation the method requires (`skills/decomposition/SKILL.md`, "When the
+decomposition changes"). Then add two lines to the decision entry's header:
+
+```
+evaluation: <path to that evaluation in Surveyor>
+modules: [<the full new list of modules and proposed repos>]
+```
+
+That entry becomes the new baseline the hook compares against.

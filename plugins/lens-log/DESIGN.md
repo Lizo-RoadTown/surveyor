@@ -39,6 +39,7 @@ came out of it, without querying memory.
 | D8 | **Reading** the PROVES source counts as touching the source surface. | Research passes change no files but are the core of the process. |
 | D9 | **Deciding factor:** an entry is a `decision` if the change alters what the repo *is* or how it *connects* (identity, boundary, shared standard, decomposition definition); everything else is progress (`process`). Orientation files (CHARTER, CLAUDE.md, BUILD.md) hold no progress notes, so editing them is always a decision; progress lives only in the log. | Operator, 2026-10-10: not every progress note is a decision. Path-based triggers stay deterministic because files are split by kind. |
 | D10 | Plugins get their own surface, **`tooling`** (`plugins/**`, `process` entries), separate from `module` (`src/**`). | Operator, 2026-10-10: plugins are their own thing but part of the work, so they are logged and distinguishable. |
+| D11 | **Module map:** the whole's `decomposition.json` may list `modules` (repos that exist) and `proposed` (repos not yet created). When a turn writes `decomposition.json` and that map differs from the `modules:` list in the latest log entry that also names an `evaluation:`, the turn needs a decision entry whose header has `evaluation: <path to the Surveyor evaluation>` and `modules: [<full new list>]`. Stateless: the log itself is the baseline. | Operator, 2026-10-20 (evaluate the method whenever a module is added, split or recategorized, automatically) and the approved roadmap method, 2026-10-21. |
 
 ## 3. The pieces
 
