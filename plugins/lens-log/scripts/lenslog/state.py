@@ -5,6 +5,7 @@ each other. Lives outside the repo: ~/.claude/cache/lens-log/ (or LENS_LOG_STATE
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import re
@@ -16,6 +17,13 @@ MAX_EVIDENCE = 10
 
 def _dir() -> Path:
     return Path(os.environ.get("LENS_LOG_STATE_DIR") or Path.home() / ".claude" / "cache" / "lens-log")
+
+
+def key(session_id: str, root: Path) -> str:
+    """State is per session AND per repo, so a session that moves between repos cannot
+    count a touch in one repo against another (M3)."""
+    digest = hashlib.sha1(str(Path(root).resolve()).lower().encode("utf-8")).hexdigest()[:10]
+    return f"{session_id or 'unknown'}-{digest}"
 
 
 def _base(session_id: str) -> Path:

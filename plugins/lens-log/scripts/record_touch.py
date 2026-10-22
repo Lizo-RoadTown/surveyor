@@ -22,9 +22,10 @@ def handle(data: dict) -> None:
     except definition.DefinitionError as e:
         print(f"[lens-log] {e}", file=sys.stderr)
         return
-    hits = definition.touches(defn, data.get("tool_name", ""), data.get("tool_input") or {})
+    cwd = Path(data.get("cwd") or ".")
+    hits = definition.touches(defn, data.get("tool_name", ""), data.get("tool_input") or {}, base=cwd)
     if hits:
-        state.record(data.get("session_id", ""), hits, entries.list_entries(root))
+        state.record(state.key(data.get("session_id", ""), root), hits, entries.list_entries(root))
 
 
 def main() -> int:

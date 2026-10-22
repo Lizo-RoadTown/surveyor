@@ -77,7 +77,9 @@ def last_evaluated_map(root: Path) -> set[str] | None:
 def write_missed(root: Path, missing: dict[str, list[str]], session_id: str, now: datetime) -> Path:
     d = Path(root).joinpath(*MISSED_DIR)
     d.mkdir(parents=True, exist_ok=True)
-    path = d / f"{now:%Y-%m-%d-%H%M%S}.json"
+    path, n = d / f"{now:%Y-%m-%d-%H%M%S}.json", 1
+    while path.exists():  # never overwrite an earlier miss in the same second (M5)
+        path, n = d / f"{now:%Y-%m-%d-%H%M%S}-{n}.json", n + 1
     record = {"session_id": session_id, "at": now.isoformat(timespec="seconds"), "surfaces": missing}
     path.write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8")
     return path

@@ -15,19 +15,19 @@ def event(repo, tool, tool_input, **extra):
 def test_records_source_read(repo, source_dir):
     path = str(source_dir / "a.py")
     record_touch.handle(event(repo, "Read", {"file_path": path}))
-    assert state.pending("s1") == {"source": [path]}
+    assert state.pending(state.key("s1", repo)) == {"source": [path]}
 
 
 def test_records_subagent_calls_too(repo, source_dir):
     path = str(source_dir / "b.py")
     record_touch.handle(event(repo, "Grep", {"pattern": "x", "path": path}, agent_id="a1", agent_type="Explore"))
-    assert state.pending("s1") == {"source": [path]}
+    assert state.pending(state.key("s1", repo)) == {"source": [path]}
 
 
 def test_ignores_unrelated(repo):
     record_touch.handle(event(repo, "Read", {"file_path": str(repo / "README.md")}))
-    assert state.pending("s1") == {}
-    assert state.meta("s1") is None
+    assert state.pending(state.key("s1", repo)) == {}
+    assert state.meta(state.key("s1", repo)) is None
 
 
 def test_no_definition_does_nothing(tmp_path):

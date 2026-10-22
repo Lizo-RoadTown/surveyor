@@ -78,7 +78,8 @@ def block_message(defn, missing: dict[str, list[str]], rejected: list[str],
         if reads_source and not roots:
             sources = ' --source "<local folder of each source repo read>"'
 
-        lines.append(f'  python "{HELPER}" --type {entry_type} --surfaces {",".join(names)} '
+        # The interpreter running this hook, not whatever 'python' is on PATH (M1).
+        lines.append(f'  "{sys.executable}" "{HELPER}" --type {entry_type} --surfaces {",".join(names)} '
                      f'--slug <short-slug> --title "<what this was>"{sources}')
     lines.append("Then fill in 'What was done', 'What was found / decided' and 'Lessons'. "
                  "See the lens-log:log-entry skill.")
@@ -105,7 +106,8 @@ def decide(data: dict, now: datetime | None = None) -> dict | None:
     except definition.DefinitionError as e:
         return _warn(f"[lens-log] decomposition.json is invalid, so logging is not enforced: {e}")
 
-    sid = data.get("session_id", "")
+    session = data.get("session_id", "")
+    sid = state.key(session, root)
     known = {s.name for s in defn.surfaces}
     pending = {k: v for k, v in state.pending(sid).items() if k in known}
     if not pending:
@@ -125,7 +127,7 @@ def decide(data: dict, now: datetime | None = None) -> dict | None:
     # Stop hook continued the turn, and our first block must not be skipped then.
     if meta.get("blocked"):
         recorded = dict(missing, **({MAP_KEY: [map_problem[1]]} if map_problem else {}))
-        path = entries.write_missed(root, recorded, sid, now or datetime.now())
+        path = entries.write_missed(root, recorded, session, now or datetime.now())
         state.clear(sid)
         rel = path.relative_to(root).as_posix()
         return _warn(f"[lens-log] No log entry was written; recorded a miss at {rel}. The index will list it.")

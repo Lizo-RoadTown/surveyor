@@ -136,9 +136,10 @@ def _regex(pattern: str) -> re.Pattern[str]:
     return re.compile("".join(out) + r"\Z")
 
 
-def _candidates(defn: Definition, path: str) -> list[str]:
+def _candidates(defn: Definition, path: str, base: Path | None = None) -> list[str]:
+    # Relative paths resolve from the tool's working directory, not the repo root (M4).
     p = Path(path)
-    absn = norm(str((p if p.is_absolute() else defn.root / p).resolve())).rstrip("/")
+    absn = norm(str((p if p.is_absolute() else (base or defn.root) / p).resolve())).rstrip("/")
     rootn = norm(str(defn.root)).rstrip("/") + "/"
     out = [absn, absn + "/"]
     if absn.startswith(rootn):
@@ -147,8 +148,8 @@ def _candidates(defn: Definition, path: str) -> list[str]:
     return out
 
 
-def match_path(defn: Definition, path: str, kind: str) -> set[str]:
-    cands = _candidates(defn, path)
+def match_path(defn: Definition, path: str, kind: str, base: Path | None = None) -> set[str]:
+    cands = _candidates(defn, path, base)
     hits = set()
     for s in defn.surfaces:
         if kind == "read" and s.on != "read-or-write":
@@ -170,7 +171,8 @@ def _marker(pattern: str) -> str | None:
     return norm(core)
 
 
-def touches(defn: Definition, tool_name: str, tool_input: dict) -> dict[str, list[str]]:
+def touches(defn: Definition, tool_name: str, tool_input: dict,
+            base: Path | None = None) -> dict[str, list[str]]:
     hits: dict[str, list[str]] = {}
 
     def add(names: set[str], evidence: str) -> None:
@@ -196,7 +198,7 @@ def touches(defn: Definition, tool_name: str, tool_input: dict) -> dict[str, lis
     for key in keys:
         value = tool_input.get(key)
         if isinstance(value, str) and value:
-            add(match_path(defn, value, kind), value)
+            add(match_path(defn, value, kind, base), value)
     return hits
 
 
